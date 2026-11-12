@@ -72,10 +72,34 @@ data.df$origin <- factor(data.df$origin, levels = c(1, 2, 3),
                          labels = c("usa", "europe", "japan"))
 ```
 
-
 # Data Exploration
 
+The distribution of the outcome variable, fuel economy in miles per gallon, is shown in figure 1. It is slightly right-skewed: most cars get between about 15 and 30 miles per gallon, with the most common values between 15 and 20, and a smaller number of very efficient cars stretching the tail out past 40 miles per gallon.
+
+```{r echo=FALSE, fig.cap="Distribution of fuel economy (miles per gallon).", fig.width=6, fig.height=3.5, fig.align="center"}
+hist(data.df$mpg, freq = FALSE, breaks = 15,
+     main = "", xlab = "Fuel economy (miles per gallon)", ylab = "Density")
+lines(density(data.df$mpg), lwd = 2)
+```
+
+The descriptive statistics are in table 1. The mean of 23.45 miles per gallon is a little above the median of 22.75. Fuel economy ranges from 9 to 46.6 miles per gallon, and the standard deviation is 7.81.
+
+```{r echo=FALSE}
+kable(desc.tbl(data.df$mpg),
+      caption = "Fuel economy descriptive statistics (miles per gallon)")
+```
+
+The skew is fairly mild, so we do not expect it to be a big problem for linear regression with a sample of 392 cars. We will still check the residuals of our fitted models for any patterns or non-constant variance.
+
 # Modeling
+
+To answer our research question, we plan to use two models:
+
+1. Multiple linear regression. We will fit a model with mpg as the dependent variable and all seven predictors as the independent variables, with origin included as a dummy variable and usa as the baseline. We will use the coefficients and p-values to compare the importance of horsepower with weight, displacement and cylinders, and the adjusted R-squared to describe the overall fit. Since the four size and power variables tend to go up together, we will also calculate the variance inflation factor (VIF) for each predictor to check for multicollinearity.
+
+2. Decision tree. We will fit a regression tree with the same dependent variable and predictors. A tree does not assume a straight-line relationship between the predictors and mpg, and its variable importance values give a second way to rank horsepower against the other size and power variables.
+
+To compare how well the two models predict fuel economy for cars they have not seen, we will use repeated 10-fold cross validation and compare the average root mean squared error (RMSE) of each model.
 
 # References
 
