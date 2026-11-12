@@ -1,0 +1,82 @@
+---
+author: "Simon Rozman and Nitish Rayavarapu"
+title: "Horsepower, Vehicle Characteristics and Fuel Economy of Cars"
+date: "2026-11-11"
+output:
+  pdf_document:
+    number_sections: true
+---
+```{r echo=FALSE, include=FALSE, message=FALSE}
+# all library load statements here
+library(knitr)
+library(ggplot2)
+
+r.version <- "4.3.2"
+seed.val <- 123456
+
+# Descriptive statistics table for a numeric variable, rounded to the hundredth
+desc.tbl <- function(x) {
+  q <- as.numeric(quantile(x))
+  statistic <- c("Min", "1st Quant. (25%)", "Mean", "Median",
+                 "3rd Quant. (75%)", "Max", "StdDev")
+  value <- sprintf("%.2f", c(min(x), q[2], mean(x), median(x), q[4], max(x), sd(x)))
+  data.frame(statistic, value)
+}
+
+# Counts and percentages for a categorical variable
+count.tbl <- function(x) {
+  tb <- table(x)
+  data.frame(Level = names(tb), Count = as.integer(tb),
+             Percent = sprintf("%.2f", 100 * as.numeric(tb) / sum(tb)))
+}
+```
+
+# Overview
+
+How far a car can go on a gallon of gas affects how much the owner spends on fuel and how much the car pollutes, so fuel economy is something both buyers and car makers pay close attention to. Car makers have to balance it against other things buyers want, like more power and a bigger car. A car with more horsepower usually has a bigger engine that burns more fuel, so we would expect it to get fewer miles per gallon. But horsepower usually goes up together with the car's weight, the size of the engine (displacement) and the number of cylinders, so it is hard to tell how much of the drop in fuel economy comes from horsepower itself and how much comes from the car just being bigger and heavier.
+
+In this analysis we look at cars from model years 1970 to 1982. This was a time when gas prices went up sharply and car makers started building smaller and more efficient cars, so there is a wide range of cars in the data, from small four cylinder cars to large cars with eight cylinder engines.
+
+The main research question of this analysis is: to what extent does horsepower influence a vehicle's fuel efficiency, and how does its predictive importance compare with vehicle weight, engine displacement, and number of cylinders?
+
+# Data Description and Processing
+
+The data set used in this analysis is the Auto MPG data set from the UCI Machine Learning Repository [1]. It was originally taken from the StatLib library at Carnegie Mellon University, and it has the fuel economy and specifications of 398 cars from model years 1970 to 1982. Since our research question compares horsepower with weight, displacement and cylinders, we grouped those four variables together as size and power variables, and grouped the rest as other vehicle variables: \
+
+Size and Power Variables: \
+horsepower: Engine horsepower. numeric \
+weight: Weight of the car in pounds. numeric \
+displacement: Engine displacement (size of the engine) in cubic inches. numeric \
+cylinders: Number of cylinders in the engine (3, 4, 5, 6 or 8). numeric \
+\par
+Other Vehicle Variables: \
+acceleration: Time it takes the car to accelerate from 0 to 60 mph in seconds. numeric \
+model_year: Model year of the car, recorded as the last two digits (70 = 1970 through 82 = 1982). numeric \
+origin: Region where the car was made. categorical: usa, europe or japan \
+name: Make and model name of the car, for example "ford pinto". categorical \
+\par
+Outcome: \
+mpg: Fuel economy of the car in miles per gallon. numeric \
+
+The dependent variable is mpg and the other variables are the independent variables. In the original data, origin is recorded as 1, 2 and 3, so we converted these to usa, europe and japan to make the results easier to read. The name variable has 301 different values, so almost every car has its own level. We did not include name as a predictor, since it only identifies the car and would add hundreds of levels to a model without telling us anything about fuel economy. This leaves seven predictors.
+
+The data set was checked for missing values. Of the original 398 observations, 6 cars were missing a value for horsepower. Since horsepower is the main predictor in our research question, we removed these 6 observations instead of filling them in, leaving 392 complete observations. We also checked the numeric variables for extreme outliers using the outer fences (more than 3 times the interquartile range below the first quartile or above the third quartile). None of the values fell outside the outer fences, so we did not remove any outliers.
+
+```{r echo=FALSE}
+# the data file has no header, values are separated by spaces and missing values are "?"
+data.df <- read.table("auto-mpg.data", na.strings = "?",
+                      col.names = c("mpg", "cylinders", "displacement", "horsepower",
+                                    "weight", "acceleration", "model_year", "origin", "name"))
+data.df <- na.omit(data.df)
+data.df$origin <- factor(data.df$origin, levels = c(1, 2, 3),
+                         labels = c("usa", "europe", "japan"))
+```
+
+
+# Data Exploration
+
+# Modeling
+
+# References
+
+[1] Quinlan, R. (1993). Auto MPG [Data set]. UCI Machine Learning Repository. https://archive.ics.uci.edu/dataset/9/auto+mpg
